@@ -5,21 +5,10 @@ import os
 import pdfplumber
 import re
 
-<<<<<<< HEAD
-
 app = Flask(__name__)
 
 
 
-=======
-app = Flask(__name__)
-
-import pdfplumber
-import re
-
-import pdfplumber
-import re
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
 
 # Function to extract text between headings (based on boldness and font size) with line breaks
 def extract_text_between_headings(pdf_path, heading):
@@ -28,50 +17,32 @@ def extract_text_between_headings(pdf_path, heading):
     heading_pattern = re.compile(re.escape(heading), re.IGNORECASE)
     current_font_size = None  # Track the font size of the first heading
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
             # Extract words with their font information (fontname and size)
             words = page.extract_words(extra_attrs=["fontname", "size", "top"])
 
-<<<<<<< HEAD
 
             bold_text = []
             previous_top = None  # Track the position (top) of the last word to detect line changes
 
 
-=======
-            bold_text = []
-            previous_top = None  # Track the position (top) of the last word to detect line changes
-
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
             for i, word in enumerate(words):
                 is_bold = "Bold" in word["fontname"]
                 font_size = word["size"]
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
                 # Detect heading based on boldness and font size (assuming headings are bold or larger)
                 if is_bold or (current_font_size is None or font_size > current_font_size):
                     bold_text.append(word["text"])
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
                     # Check if next word is not bold or the end of words list is reached
                     if (i + 1 >= len(words) or ("Bold" not in words[i + 1]["fontname"] and words[i + 1]["size"] != font_size)):
                         bold_heading = " ".join(bold_text).strip()
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
                         # If the bold/large text matches the desired heading
                         if not found_heading and heading_pattern.search(bold_heading):
                             found_heading = True
@@ -81,15 +52,10 @@ def extract_text_between_headings(pdf_path, heading):
                         elif found_heading and (is_bold or font_size == current_font_size):
                             return extracted_text.strip()
 
-<<<<<<< HEAD
 
                         bold_text = []  # Reset bold text collection for next heading
 
 
-=======
-                        bold_text = []  # Reset bold text collection for next heading
-
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
                 # If the first heading was found, append text until the next heading
                 if found_heading and not is_bold and font_size <= current_font_size:
                     # Add a new line if the current word is from a different line (using 'top' position)
@@ -98,30 +64,21 @@ def extract_text_between_headings(pdf_path, heading):
                     extracted_text += word["text"] + " "
                     previous_top = word["top"]  # Update the last position for line break detection
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
     return extracted_text.strip()
 
 
 
 
-<<<<<<< HEAD
 
 
 
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
 def extract_tables_from_pdf(pdf_path, heading):
     tables = []
     found_heading = False
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
             text = page.extract_text()
@@ -131,7 +88,6 @@ def extract_tables_from_pdf(pdf_path, heading):
                     df = pd.DataFrame(table[1:], columns=table[0])
                     tables.append(df)
                 break
-<<<<<<< HEAD
    
     if not found_heading:
         return None
@@ -139,22 +95,11 @@ def extract_tables_from_pdf(pdf_path, heading):
     return tables
 
 
-=======
-    
-    if not found_heading:
-        return None
-    
-    return tables
-
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
 @app.route('/')
 def index():
     return render_template('index.html')
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
@@ -162,7 +107,6 @@ def upload_file():
         heading = request.form.get('heading')
         pdf_file = request.files['file']
 
-<<<<<<< HEAD
 
         if not pdf_file or not heading:
             return "Please provide a PDF file and a heading."
@@ -172,41 +116,23 @@ def upload_file():
         pdf_file.save(pdf_path)
 
 
-=======
-        if not pdf_file or not heading:
-            return "Please provide a PDF file and a heading."
-
-        pdf_path = os.path.join("uploads", pdf_file.filename)
-        pdf_file.save(pdf_path)
-
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
         if action == "extract_text":
             text = extract_text_between_headings(pdf_path, heading)
             if not text:
                 return "No text found with the given heading."
             return render_template('result.html', text=text)
-<<<<<<< HEAD
        
-=======
-        
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
         elif action == "extract_table":
             tables = extract_tables_from_pdf(pdf_path, heading)
             if not tables:
                 return "No table found with the given heading."
-<<<<<<< HEAD
            
            
-=======
-            
-            
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
             output_path = os.path.join("outputs", "extracted_table.xlsx")
             with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
                 for i, table in enumerate(tables):
                     table.to_excel(writer, sheet_name=f'Sheet{i+1}', index=False)
 
-<<<<<<< HEAD
 
             return send_file(output_path, as_attachment=True)
 
@@ -214,20 +140,10 @@ def upload_file():
     return redirect(url_for('index'))
 
 
-=======
-            return send_file(output_path, as_attachment=True)
-
-    return redirect(url_for('index'))
-
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
 if __name__ == "__main__":
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
     if not os.path.exists('outputs'):
         os.makedirs('outputs')
-<<<<<<< HEAD
     app.run(debug=True)
 
-=======
-    app.run(debug=True)
->>>>>>> bfb9bfe4cc1c4e19df10c9cef134eb20f44561d3
