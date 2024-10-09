@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Extraction</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: burlywood;
+            color: white;
+        }
+        
+        .container {
+            margin-top: 50px;
+        }
+        
+        label {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>PDF Extraction</h1>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Choose PDF File:</label>
+                <input type="file" class="form-control-file" name="file" id="file" required>
+            </div>
+
+            <div class="form-group">
+                <label for="action">Select Action:</label>
+                <select class="form-control" name="action" id="action" required>
+                    <option value="extract_text">Extract Text</option>
+                    <option value="extract_table">Extract Table</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="heading">Heading:</label>
+                <input type="text" class="form-control" name="heading" id="heading" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+
+</html>
