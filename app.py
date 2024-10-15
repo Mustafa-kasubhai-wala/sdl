@@ -10,62 +10,56 @@ app = Flask(__name__)
 
 
 
-# Function to extract text between headings (based on boldness and font size) with line breaks
+
+
 def extract_text_between_headings(pdf_path, heading):
     extracted_text = ""
     found_heading = False
     heading_pattern = re.compile(re.escape(heading), re.IGNORECASE)
-    current_font_size = None  # Track the font size of the first heading
-
+    current_font_size = None
 
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
-            # Extract words with their font information (fontname and size)
             words = page.extract_words(extra_attrs=["fontname", "size", "top"])
-
-
             bold_text = []
-            previous_top = None  # Track the position (top) of the last word to detect line changes
-
+            previous_top = None
 
             for i, word in enumerate(words):
                 is_bold = "Bold" in word["fontname"]
                 font_size = word["size"]
 
-
-                # Detect heading based on boldness and font size (assuming headings are bold or larger)
+                # Detect bold or large headings, based on user's given heading
                 if is_bold or (current_font_size is None or font_size > current_font_size):
                     bold_text.append(word["text"])
 
-
-                    # Check if next word is not bold or the end of words list is reached
-                    if (i + 1 >= len(words) or ("Bold" not in words[i + 1]["fontname"] and words[i + 1]["size"] != font_size)):
+                    # If next word is not bold or has a different font size, complete the heading
+                    if (i + 1 >= len(words) or 
+                        ("Bold" not in words[i + 1]["fontname"] and words[i + 1]["size"] != font_size)):
                         bold_heading = " ".join(bold_text).strip()
 
-
-                        # If the bold/large text matches the desired heading
+                        # If this is the target heading
                         if not found_heading and heading_pattern.search(bold_heading):
                             found_heading = True
-                            current_font_size = font_size  # Record the font size of this heading
-                            bold_text = []  # Reset bold text collection
-                        # If another heading is found after the first one, stop
+                            current_font_size = font_size  # Record the heading's font size
+                            bold_text = []
+                        # If we encounter another heading (based on bold or size), stop extracting text
                         elif found_heading and (is_bold or font_size == current_font_size):
                             return extracted_text.strip()
 
+                        bold_text = []  # Reset for the next heading
 
-                        bold_text = []  # Reset bold text collection for next heading
-
-
-                # If the first heading was found, append text until the next heading
+                # Extract the text between headings
                 if found_heading and not is_bold and font_size <= current_font_size:
-                    # Add a new line if the current word is from a different line (using 'top' position)
+                    # Add a new line if the current word is from a different line (detected by 'top' position)
                     if previous_top is not None and word["top"] != previous_top:
                         extracted_text += "\n"
                     extracted_text += word["text"] + " "
-                    previous_top = word["top"]  # Update the last position for line break detection
-
+                    previous_top = word["top"]  # Track the top position for line breaks
 
     return extracted_text.strip()
+
+
+
 
 
 
