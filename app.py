@@ -10,8 +10,6 @@ app = Flask(__name__)
 
 
 
-
-
 def extract_text_between_headings(pdf_path, heading):
     extracted_text = ""
     found_heading = False
@@ -28,27 +26,27 @@ def extract_text_between_headings(pdf_path, heading):
                 is_bold = "Bold" in word["fontname"]
                 font_size = word["size"]
 
-                # Detect bold or large headings, based on user's given heading
+                # Detect bold/large text, assuming headings are both bold and match the font size
                 if is_bold or (current_font_size is None or font_size > current_font_size):
                     bold_text.append(word["text"])
 
-                    # If next word is not bold or has a different font size, complete the heading
+                    # If next word is not bold or has a different font size, finalize the heading
                     if (i + 1 >= len(words) or 
                         ("Bold" not in words[i + 1]["fontname"] and words[i + 1]["size"] != font_size)):
                         bold_heading = " ".join(bold_text).strip()
 
-                        # If this is the target heading
+                        # If we find the target heading
                         if not found_heading and heading_pattern.search(bold_heading):
                             found_heading = True
                             current_font_size = font_size  # Record the heading's font size
                             bold_text = []
-                        # If we encounter another heading (based on bold or size), stop extracting text
-                        elif found_heading and (is_bold or font_size == current_font_size):
+                        # If another heading is found after the first one (match on both bold and font size)
+                        elif found_heading and is_bold and font_size == current_font_size:
                             return extracted_text.strip()
 
                         bold_text = []  # Reset for the next heading
 
-                # Extract the text between headings
+                # Extract text between headings, ensuring font size is less than or equal to the heading's
                 if found_heading and not is_bold and font_size <= current_font_size:
                     # Add a new line if the current word is from a different line (detected by 'top' position)
                     if previous_top is not None and word["top"] != previous_top:
